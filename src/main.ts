@@ -1,19 +1,49 @@
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d")!; // <-- 👈 non-null assertion here
+const ctx = canvas.getContext("2d")!;
 
-if (!ctx) {
-  throw new Error("Canvas not supported");
-}
-
-// Pac-Man position
+// Pac-Man position and speed
 let x = 50;
 let y = 300;
 const radius = 25;
-const speed = 2;
+let dx = 2;
+let dy = 0;
 
-// Animation loop
+// Handle key press
+window.addEventListener("keydown", (event) => {
+  switch (event.key) {
+    case "ArrowUp":
+    case "w":
+    case "W":
+      dx = 0;
+      dy = -2;
+      break;
+
+    case "ArrowDown":
+    case "s":
+    case "S":
+      dx = 0;
+      dy = 2;
+      break;
+
+    case "ArrowLeft":
+    case "a":
+    case "A":
+      dx = -2;
+      dy = 0;
+      break;
+
+    case "ArrowRight":
+    case "d":
+    case "D":
+      dx = 2;
+      dy = 0;
+      break;
+  }
+});
+
+
+// Game loop
 function gameLoop() {
-  // Clear canvas
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -25,11 +55,10 @@ function gameLoop() {
   ctx.fill();
 
   // Update position
-  x += speed;
+  x += dx;
+  y += dy;
 
-  // Loop the animation
   requestAnimationFrame(gameLoop);
 }
 
-// Start the loop
 gameLoop();
