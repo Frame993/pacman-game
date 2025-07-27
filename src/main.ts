@@ -4,7 +4,14 @@ const ctx = canvas.getContext("2d")!;
 // Pac-Man position and speed
 let x = 50;
 let y = 300;
+
 const radius = 25;
+let mouthOpen = true;
+let mouthAngle = 0.2 * Math.PI; // current offset from straight ahead
+const mouthSpeed = 0.02 * Math.PI; // how fast the mouth opens/closes
+const mouthMax = 0.25 * Math.PI; // maximum openness
+const mouthMin = 0 * Math.PI; // minimum openness
+
 let dx = 2;
 let dy = 0;
 
@@ -40,22 +47,31 @@ window.addEventListener("keydown", (event) => {
 
 // Game loop
 function gameLoop() {
-  // Clear the canvas
+  // Clear
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Animate mouth
+  if (mouthOpen) {
+    mouthAngle += mouthSpeed;
+    if (mouthAngle >= mouthMax) mouthOpen = false;
+  } else {
+    mouthAngle -= mouthSpeed;
+    if (mouthAngle <= mouthMin) mouthOpen = true;
+  }
 
   // Draw Pac-Man
   ctx.beginPath();
   ctx.fillStyle = "yellow";
-  ctx.arc(x, y, radius, 0.2 * Math.PI, 1.8 * Math.PI); // mouth open
-  ctx.lineTo(x, y); // close mouth
+  ctx.arc(x, y, radius, mouthAngle, 2 * Math.PI - mouthAngle);
+  ctx.lineTo(x, y);
   ctx.fill();
 
-  // Update position
+  // Move
   x += dx;
   y += dy;
 
-  // Keep Pac-Man inside canvas boundaries
+  // Boundaries
   if (x - radius < 0) x = radius;
   if (x + radius > canvas.width) x = canvas.width - radius;
   if (y - radius < 0) y = radius;
