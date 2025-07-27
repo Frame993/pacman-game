@@ -7,6 +7,7 @@ let y = 300;
 
 const radius = 25;
 let mouthOpen = true;
+let directionAngle = 0; // in radians
 let mouthAngle = 0.2 * Math.PI; // current offset from straight ahead
 const mouthSpeed = 0.02 * Math.PI; // how fast the mouth opens/closes
 const mouthMax = 0.25 * Math.PI; // maximum openness
@@ -23,24 +24,28 @@ window.addEventListener("keydown", (event) => {
     case "W":
       dx = 0;
       dy = -2;
+      directionAngle = -0.5 * Math.PI; // up
       break;
     case "ArrowDown":
     case "s":
     case "S":
       dx = 0;
       dy = 2;
+      directionAngle = 0.5 * Math.PI; // down
       break;
     case "ArrowLeft":
     case "a":
     case "A":
       dx = -2;
       dy = 0;
+      directionAngle = Math.PI; // left
       break;
     case "ArrowRight":
     case "d":
     case "D":
       dx = 2;
       dy = 0;
+      directionAngle = 0; // right
       break;
   }
 });
@@ -61,11 +66,18 @@ function gameLoop() {
   }
 
   // Draw Pac-Man
+  ctx.save(); // Save current drawing state
+
+  ctx.translate(x, y); // Move origin to Pac-Man's center
+  ctx.rotate(directionAngle); // Rotate everything that follows
+
   ctx.beginPath();
   ctx.fillStyle = "yellow";
-  ctx.arc(x, y, radius, mouthAngle, 2 * Math.PI - mouthAngle);
-  ctx.lineTo(x, y);
+  ctx.arc(0, 0, radius, mouthAngle, 2 * Math.PI - mouthAngle);
+  ctx.lineTo(0, 0);
   ctx.fill();
+
+  ctx.restore(); // Reset the rotation + translation
 
   // Move
   x += dx;
