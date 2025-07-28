@@ -2,8 +2,13 @@ const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
 
 // Pac-Man position and speed
-let x = 50;
-let y = 300;
+const spacing = 40; // distancia entre pellets
+
+let x = spacing;
+let y = spacing;
+
+let dx = 2;
+let dy = 0;
 
 const radius = 25;
 let mouthOpen = true;
@@ -13,8 +18,21 @@ const mouthSpeed = 0.02 * Math.PI; // how fast the mouth opens/closes
 const mouthMax = 0.25 * Math.PI; // maximum openness
 const mouthMin = 0 * Math.PI; // minimum openness
 
-let dx = 2;
-let dy = 0;
+// Pellet type
+interface Pellet {
+  x: number;
+  y: number;
+  eaten: boolean;
+}
+
+const pellets: Pellet[] = [];
+
+// Crear cuadrícula de pellets
+for (let row = spacing; row < canvas.height; row += spacing) {
+  for (let col = spacing; col < canvas.width; col += spacing) {
+    pellets.push({ x: col, y: row, eaten: false });
+  }
+}
 
 // Handle key press (WASD + Arrow Keys)
 window.addEventListener("keydown", (event) => {
@@ -56,6 +74,31 @@ function gameLoop() {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Debug: draw grid for test
+  // for (let i = spacing; i < canvas.width; i += spacing) {
+  //   ctx.strokeStyle = "gray";
+  //   ctx.beginPath();
+  //   ctx.moveTo(i, 0);
+  //   ctx.lineTo(i, canvas.height);
+  //   ctx.stroke();
+  // }
+  // for (let i = spacing; i < canvas.height; i += spacing) {
+  //   ctx.beginPath();
+  //   ctx.moveTo(0, i);
+  //   ctx.lineTo(canvas.width, i);
+  //   ctx.stroke();
+  // }
+
+  // Dibujar pellets
+  ctx.fillStyle = "white";
+  for (const pellet of pellets) {
+    if (!pellet.eaten) {
+      ctx.beginPath();
+      ctx.arc(pellet.x, pellet.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
   // Animate mouth
   if (mouthOpen) {
     mouthAngle += mouthSpeed;
@@ -89,6 +132,17 @@ function gameLoop() {
   if (y - radius < 0) y = radius;
   if (y + radius > canvas.height) y = canvas.height - radius;
 
+    // 2) snap to grid on turns
+  if (dy === 0) {
+    const row = Math.round(y / spacing);
+    y = row * spacing;
+  }
+  if (dx === 0) {
+    const col = Math.round(x / spacing);
+    x = col * spacing;
+  }
+
+  // 3) boundaries & rest of loop…
   requestAnimationFrame(gameLoop);
 }
 
